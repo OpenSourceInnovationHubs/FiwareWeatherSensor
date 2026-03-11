@@ -1,0 +1,40 @@
+version: '3.3'
+services:
+  orion-ld:
+    image: fiware/orion-ld
+    ports:
+      - "1026:1026"
+    depends_on:
+      - mongo-db
+    command: -dbhost mongo-db
+
+  mongo-db:
+    image: mongo:4.4
+    command: --nojournal
+    ports:
+      - "27017:27017"
+  
+  quantumleap:
+    image: orchestracities/quantumleap:0.8.0
+    ports:
+      - "8668:8668"
+    depends_on:
+      - crate-db
+    environment:
+      - CRATE_HOST=crate-db
+
+  crate-db:
+    image: crate:latest
+    ports:
+      - "4200:4200"
+      - "4300:4300"
+  
+  grafana:
+    image: grafana/grafana
+    depends_on:
+        - crate-db
+    ports:
+      - "3000:3000"
+    environment:
+        - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-worldmap-panel
+  
